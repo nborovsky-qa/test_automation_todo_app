@@ -7,7 +7,7 @@ Automated UI tests for the **Todo** task-management mobile app (Android, with op
 - **Appium** – mobile automation
 - **Selene** – fluent browser/element API and built-in waiting
 - **pytest** – test runner and fixtures
-- **Platform parametrization** – run with `--platform android` or `--platform ios` (iOS uses mock locators if no device)
+- **Platform and device parametrization** – run with `--platform android` or `--platform ios`, and optionally `--device <id>` or `--device any` to pick the first connected device
 - **CI** – GitHub Actions workflow runs tests on an Android emulator; device and platform come from `ci/config.yaml` or manual inputs
 
 ## Prerequisites
@@ -62,10 +62,12 @@ appium
 
 - **`config.py`** reads environment variables. Important ones:
   - `remote_url` – Appium server URL (default `http://127.0.0.1:4723`)
-  - `android_deviceName` – device/emulator id (default in code is for local use; **CI overrides this** from `ci/config.yaml`)
+  - `android_deviceName` – device/emulator id; use `any` or `any_active` to auto-pick the first from `adb devices` (CI sets this from `ci/config.yaml`)
   - `android_app` – optional path to APK to install before the run
 
-Override locally, for example:
+You can also pass the device via **pytest**: `--device <id>` or `--device any` (see [Running tests](#running-tests)). Env is overridden by `--device` when building the driver.
+
+Override locally with env, for example:
 
 ```powershell
 $env:android_deviceName = "emulator-5554"
@@ -83,10 +85,17 @@ The workflow exports these so the run uses the chosen device, not the default in
 
 From the project root with the virtual environment activated:
 
-**All Todo app tests (Android):**
+**All Todo app tests (Android)** (device from env or first from `adb devices`):
 
 ```bash
 pytest tests/android_app/test_todo_app.py --platform android
+```
+
+**With a specific device** (or `any` / `any_active` to use the first connected):
+
+```bash
+pytest tests/android_app/test_todo_app.py --platform android --device emulator-5554
+pytest tests/android_app/test_todo_app.py --platform android --device any
 ```
 
 **Single test:**
@@ -98,7 +107,7 @@ pytest tests/android_app/test_todo_app.py::test_tc1_create_task_happy_path --pla
 **With options:**
 
 ```bash
-pytest tests/android_app/test_todo_app.py --platform android -v --tb=short
+pytest tests/android_app/test_todo_app.py --platform android --device emulator-5554 -v --tb=short
 ```
 
 **iOS** (mock locators; real device/simulator needed for real runs):
@@ -127,7 +136,7 @@ pytest tests/android_app/test_todo_app.py --platform ios
 
 - **Workflow**: [.github/workflows/android-tests.yml](.github/workflows/android-tests.yml)
 - **Triggers**: manual **Run workflow** only
-- **Behaviour**: Reads `ci/config.yaml` (or manual inputs), starts an Android emulator, starts Appium, sets `android_deviceName` from config, runs pytest. Device in use is printed in the log (`Using device (android_deviceName): ...`).
+- **Behaviour**: Reads `ci/config.yaml` (or manual inputs), starts an Android emulator, starts Appium, sets `android_deviceName` from config, and runs pytest with `--platform` and `--device` so the same parametrization is used as locally. Device in use is printed in the log (`Using device (android_deviceName): ...`).
 - **APK**: For the app to be installed in CI, place `todo.apk` at `ci/todo.apk` or adjust the workflow (see [ci/README.md](ci/README.md)).
 
 ## License / repo
