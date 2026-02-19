@@ -3,6 +3,8 @@ Conftest for Todo-app tests.
 
 Run with:
     pytest tests/android_app/test_todo_app.py --platform android
+    pytest tests/android_app/test_todo_app.py --platform android --device emulator-5554
+    pytest tests/android_app/test_todo_app.py --platform android --device any
     pytest tests/android_app/test_todo_app.py --platform ios
 """
 
@@ -33,6 +35,14 @@ def pytest_addoption(parser):
         choices=['android', 'ios'],
         help='Target mobile platform: Android (UIAutomator2) or iOS (XCUITest)',
     )
+    parser.addoption(
+        '--device',
+        action='store',
+        default='',
+        help='Device id for Appium (e.g. emulator-5554, R5CT4037HVT). '
+             'Use "any" or "any_active" to pick the first from adb devices. '
+             'Default: use env android_deviceName or first connected device.',
+    )
 
 
 @pytest.fixture(scope='session')
@@ -42,13 +52,19 @@ def platform(request):
 
 
 @pytest.fixture(scope='session')
+def device(request):
+    # Device id or any/any_active from --device CLI option
+    return request.config.getoption('--device', default='')
+
+
+@pytest.fixture(scope='session')
 def locators(platform):
     # Locator class matching the active platform (AndroidLocators / iOSLocators)
     return get_locators(platform)
 
 
 @pytest.fixture(scope='function', autouse=True)
-def mobile_management(platform):
+def mobile_management(platform, device):
     # Set up the Appium driver via selene's browser before each test and quit after.
     remote_url = (
         config.ANDROID_REMOTE_URL
@@ -57,7 +73,7 @@ def mobile_management(platform):
     )
     browser.config.driver = webdriver.Remote(
         remote_url,
-        options=config.todo_driver_options(platform),
+        options=config.todo_driver_options(platform, device_override=device or None),
     )
     browser.config.timeout = float(os.getenv('timeout', '10.0'))
 

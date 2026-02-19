@@ -92,7 +92,7 @@ jobs:
             fi
             appium &
             sleep 15
-            python -m pytest tests/android_app/test_todo_app.py --platform android -v --tb=short
+            python -m pytest tests/android_app/test_todo_app.py --platform android --device "${{ steps.config.outputs.device }}" -v --tb=short
         env:
           PLATFORM: ${{ steps.config.outputs.platform }}
           DEVICE: ${{ steps.config.outputs.device }}

@@ -37,7 +37,7 @@ def get_android_device_name():
     raw = _ANDROID_DEVICE_NAME_RAW.strip().lower()
     if raw in ('', 'any', 'any_active'):
         device = _first_connected_android_device()
-        return device if device else 'samsung SM-S908B'
+        return device if device else 'emulator-5554'
     return _ANDROID_DEVICE_NAME_RAW
 
 
@@ -59,10 +59,14 @@ ANDROID_APP_WAIT_ACTIVITY = os.getenv(
 ANDROID_APP_PATH = os.getenv('android_app', '')
 
 
-def _android_options():
+def _android_options(device_override=None):
     from appium.options.android import UiAutomator2Options
+    if device_override is None or str(device_override).strip().lower() in ('', 'any', 'any_active'):
+        device_name = get_android_device_name()
+    else:
+        device_name = str(device_override).strip()
     options = UiAutomator2Options()
-    options.set_capability('deviceName', ANDROID_DEVICE_NAME)
+    options.set_capability('deviceName', device_name)
     options.set_capability('appPackage', ANDROID_APP_PACKAGE)
     options.set_capability('appActivity', ANDROID_APP_ACTIVITY)
     options.set_capability('appWaitActivity', ANDROID_APP_WAIT_ACTIVITY)
@@ -95,17 +99,21 @@ def _ios_options():
     return options
 
 
-def todo_driver_options(platform: str = 'android'):
+def todo_driver_options(platform: str = 'android', device_override=None):
     """Return Appium capability options for the Todo app on the given platform.
+
+    device_override: optional device id or 'any'/'any_active' (e.g. from pytest --device).
+                     For Android, when None or any/any_active, uses env or first from adb.
 
     Usage::
 
-        pytest --platform android   # UIAutomator2 + Android config
-        pytest --platform ios       # XCUITest    + iOS config (mock)
+        pytest --platform android                  # device from env or adb
+        pytest --platform android --device emulator-5554
+        pytest --platform ios
     """
     p = platform.lower()
     if p == 'android':
-        return _android_options()
+        return _android_options(device_override=device_override)
     if p == 'ios':
         return _ios_options()
     raise ValueError(f'Unsupported platform: {platform!r}')
