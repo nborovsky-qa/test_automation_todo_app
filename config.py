@@ -1,10 +1,47 @@
 # Android Config
 
 import os
+import subprocess
+import re
 
 ANDROID_REMOTE_URL = os.getenv('remote_url', 'http://127.0.0.1:4723')
-# Default is for local run. CI sets android_deviceName from YAML
-ANDROID_DEVICE_NAME = os.getenv('android_deviceName', 'samsung SM-S908B')
+
+# Default is for local run. CI sets android_deviceName from YAML.
+# Set to empty, "any", or "any_active" to auto-pick the first device from `adb devices`.
+_ANDROID_DEVICE_NAME_RAW = os.getenv('android_deviceName', 'any')
+
+
+def _first_connected_android_device():
+    # Return the first connected device/emulator id from `adb devices`, or None.
+    try:
+        out = subprocess.run(
+            ['adb', 'devices'],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if out.returncode != 0:
+            return None
+        # Lines like "emulator-5554" or "R5CT4037HVT"
+        for line in out.stdout.splitlines():
+            m = re.match(r'^(\S+)\s+device\s*$', line)
+            if m:
+                return m.group(1)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def get_android_device_name():
+    # Device name for Appium: from env, or first connected device if env is any/any_active/empty
+    raw = _ANDROID_DEVICE_NAME_RAW.strip().lower()
+    if raw in ('', 'any', 'any_active'):
+        device = _first_connected_android_device()
+        return device if device else 'samsung SM-S908B'
+    return _ANDROID_DEVICE_NAME_RAW
+
+
+ANDROID_DEVICE_NAME = get_android_device_name()
 ANDROID_APP_PACKAGE = os.getenv(
     'android_appPackage',
     'com.example.android.architecture.blueprints.main',
