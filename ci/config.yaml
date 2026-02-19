@@ -1,0 +1,16 @@
+# CI test run configuration.
+# The workflow reads these and passes them as env vars / pytest args.
+
+# Target platform for test run
+platform: android  # android | ios
+
+# Device selection (used as android_deviceName / ios_deviceName in config.py)
+# - "any_active" : use the first connected emulator/device (e.g. from adb devices)
+# - Or a specific id: "emulator-5554", "samsung SM-S908B", "R5CT4037HVT", etc.
+device: any_active
+
+# Optional: Android API level for the emulator (when device is any_active and we create one)
+android_api_level: "40"
+
+# Optional: AVD name to create/launch in CI (when device is any_active)
+android_avd: "pixel_10_api_50"
