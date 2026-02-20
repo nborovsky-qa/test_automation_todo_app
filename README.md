@@ -15,7 +15,7 @@ Automated UI tests for the **Todo** task-management mobile app (Android, with op
 - **Python** 3.11+ (or 3.10)
 - **Node.js** (for Appium)
 - **Appium** 2.x with UIAutomator2 driver (Android)
-- **Android**: device or emulator with the Todo app **installed**, or an APK path for (re)install (APK must be placed inside ci folder in order to install)
+- **Android**: device or emulator with the Todo app **installed**, or an APK path for (re)install (APK must be placed inside **ci** folder in order to install)
 - **Appium server** running (e.g. `appium` on `http://127.0.0.1:4723`) when running tests locally
 
 ## Project structure
