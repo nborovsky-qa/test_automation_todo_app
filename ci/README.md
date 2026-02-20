@@ -13,8 +13,8 @@ The workflow passes these as env vars (`android_deviceName` / `ios_deviceName`) 
 
 To run tests in CI, the Todo app must be on the emulator. Either:
 
-1. **Place an APK in the repo**: put your built `todo.apk` at `ci/todo.apk`. The workflow will install it on the emulator. Add `ci/todo.apk` to `.gitignore` if you don’t want to commit it and use a build step or artifact instead.
-2. **Pre-install elsewhere**: if the emulator image already has the app (e.g. custom image), leave `ci/todo.apk` absent and ensure `config.py` uses the correct package/activity for that install.
+1. **Place an APK in the repo**: put your built `todo.apk` at `ci/todo.apk`. The workflow will install it on the connected / selected device in options. Add `ci/todo.apk` to `.gitignore` if you don’t want to commit it and use a build step or artifact instead.
+2. **Pre-install elsewhere**: if the device already has the app installed, leave `ci/todo.apk` absent, no futher changes needed
 
 ## Manual run
 
