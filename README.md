@@ -24,7 +24,6 @@ Automated UI tests for the **Todo** task-management mobile app (Android, with op
 .
 ├── config.py                 # App/device config (env-based; used by tests and CI)
 ├── requirements.txt          # Python dependencies
-├── app_test_plan.md          # Detailed test plan and scenarios
 ├── ci/
 │   ├── config.yaml          # CI: platform & device (any_active or specific id)
 │   └── README.md            # CI config and APK instructions
